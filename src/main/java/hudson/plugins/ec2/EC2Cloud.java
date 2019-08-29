@@ -622,6 +622,7 @@ public abstract class EC2Cloud extends Cloud {
         return new PlannedNode(t.getDisplayName(),
                 Computer.threadPoolForRemoting.submit(new Callable<Node>() {
                     public Node call() throws Exception {
+                        int stopLoops = 5;
                         while (true) {
                             String instanceId = slave.getInstanceId();
                             if (slave instanceof EC2SpotSlave) {
@@ -654,14 +655,25 @@ public abstract class EC2Cloud extends Cloud {
                                 }
                                 
                                 long startTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - instance.getLaunchTime().getTime());
-                                LOGGER.log(Level.INFO, "{0} Node {1} moved to RUNNING state in {2} seconds and is ready to be connected by Jenkins",
-                                        new Object[]{t, slave.getNodeName(), startTime});
+                                LOGGER.log(Level.INFO, "{0} Instance id {1} moved to RUNNING state in {2} seconds and is ready to be connected by Jenkins",
+                                        new Object[]{t, instanceId, startTime});
                                 return slave;
                             }
 
+                            // If the state is stopped, try looping again to give time for AWS to update the state
+                            //  It likely will be running very soon
+                            if (stopLoops > 0 && state.equals(InstanceStateName.Stopped)) {
+                                stopLoops--;
+                                LOGGER.log(Level.WARNING, "{0}. Instance id {1} is still stopped; going to try {2} more times",
+                                        new Object[]{t, instanceId, stopLoops});
+                                Thread.sleep(1000);
+
+                                continue;
+                            }
+
                             if (!state.equals(InstanceStateName.Pending)) {
-                                LOGGER.log(Level.WARNING, "{0}. Node {1} is neither pending, neither running, it's {2}. Terminate provisioning",
-                                        new Object[]{t, state, slave.getNodeName()});
+                                LOGGER.log(Level.WARNING, "{0}. Instance id {1} is neither pending, neither running, it's {2}. Terminate provisioning",
+                                        new Object[]{t, instanceId, state});
                                 return null;
                             }
 
