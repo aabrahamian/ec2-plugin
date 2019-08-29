@@ -593,9 +593,12 @@ public abstract class EC2AbstractSlave extends Slave {
     private List<String> getResourcesToTag(Instance inst) {
         List<String> resources = new ArrayList<>();
         resources.add(inst.getInstanceId());
-        for(InstanceBlockDeviceMapping blockDeviceMapping : inst.getBlockDeviceMappings()) {
-            resources.add(blockDeviceMapping.getEbs().getVolumeId());
-        }
+        // disabling for looker since we've never tagged the volumes before
+        //  if someone can figure out a good secure scheme for only adding/removing tags that belong to jenkins worker nodes
+        //  we can reenable this
+//        for(InstanceBlockDeviceMapping blockDeviceMapping : inst.getBlockDeviceMappings()) {
+//            resources.add(blockDeviceMapping.getEbs().getVolumeId());
+//        }
         return resources;
     }
 
