@@ -156,6 +156,7 @@ public abstract class EC2AbstractSlave extends Slave {
         this.launchTimeout = launchTimeout;
         this.amiType = amiType;
         readResolve();
+        fetchLiveInstanceData(true);
     }
 
     @Override
