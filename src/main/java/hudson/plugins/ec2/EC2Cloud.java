@@ -677,6 +677,8 @@ public abstract class EC2Cloud extends Cloud {
                                 return null;
                             }
 
+                            LOGGER.log(Level.INFO, "{0} Instance id {1} in state {2} and we are going to sleep for 5 seconds",
+                                    new Object[]{t, instanceId, state});
                             Thread.sleep(5000);
                         }
                     }

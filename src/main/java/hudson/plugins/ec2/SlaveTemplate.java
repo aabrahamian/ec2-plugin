@@ -1010,6 +1010,7 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
                 break;
             } catch (AmazonServiceException e) {
                 if (e.getErrorCode().equals(catchErrorCode)) {
+                    LOGGER.info("Sleeping for 5 seconds for params " + params + "in slavetemplate.java");
                     Thread.sleep(5000);
                     continue;
                 }

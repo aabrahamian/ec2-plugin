@@ -26,6 +26,7 @@ final class CloudHelper {
             } catch (AmazonServiceException e) {
                 if (e.getErrorCode().equals("InvalidInstanceID.NotFound")) {
                     // retry in 5 seconds.
+                    LOGGER.info("Sleeping for 5 seconds for instance id " + instanceId + "in cloudhelper.java");
                     Thread.sleep(5000);
                     continue;
                 }
