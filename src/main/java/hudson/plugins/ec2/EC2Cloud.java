@@ -130,7 +130,7 @@ public abstract class EC2Cloud extends Cloud {
 
     private static final SimpleFormatter sf = new SimpleFormatter();
 
-    private transient ReentrantLock slaveCountingLock = new ReentrantLock();
+//    private transient ReentrantLock slaveCountingLock = new ReentrantLock();
 
     private final boolean useInstanceProfileForCredentials;
 
@@ -194,7 +194,7 @@ public abstract class EC2Cloud extends Cloud {
     public abstract URL getS3EndpointUrl() throws IOException;
 
     protected Object readResolve() {
-        this.slaveCountingLock = new ReentrantLock();
+//        this.slaveCountingLock = new ReentrantLock();
         for (SlaveTemplate t : templates)
             t.parent = this;
         if (this.accessId != null && this.secretKey != null && credentialsId == null) {
@@ -553,9 +553,9 @@ public abstract class EC2Cloud extends Cloud {
      * Obtains a slave whose AMI matches the AMI of the given template, and that also has requiredLabel (if requiredLabel is non-null)
      * forceCreateNew specifies that the creation of a new slave is required. Otherwise, an existing matching slave may be re-used
      */
-    private List<EC2AbstractSlave> getNewOrExistingAvailableSlave(SlaveTemplate t, int number, boolean forceCreateNew) {
+    private synchronized List<EC2AbstractSlave> getNewOrExistingAvailableSlave(SlaveTemplate t, int number, boolean forceCreateNew) {
         try {
-            slaveCountingLock.lock();
+//            slaveCountingLock.lock();
             int possibleSlavesCount = getPossibleNewSlavesCount(t);
             if (possibleSlavesCount <= 0) {
                 LOGGER.log(Level.INFO, "{0}. Cannot provision - no capacity for instances: " + possibleSlavesCount, t);
@@ -580,7 +580,9 @@ public abstract class EC2Cloud extends Cloud {
                 LOGGER.log(Level.WARNING, t + ". Exception during provisioning", e);
                 return null;
             }
-        } finally { slaveCountingLock.unlock(); }
+        } finally {
+//            slaveCountingLock.unlock();
+        }
     }
 
     @Override
