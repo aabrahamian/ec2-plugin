@@ -589,8 +589,12 @@ public abstract class EC2Cloud extends Cloud {
         List<PlannedNode> plannedNodes = new ArrayList<>();
 
         try {
-            LOGGER.log(Level.INFO, "{0}. Attempting to provision slave needed by excess workload of " + excessWorkload + " units", t);
+            LOGGER.log(Level.INFO, "{0}. Attempting to provision slave needed by excess workload of " + excessWorkload + " % 5 units, will provision more on additional passes", t);
             int number = Math.max(excessWorkload / t.getNumExecutors(), 1);
+
+            // only provision 5 nodes per provision call to prevent excessively long queue locks
+            number = (number % 5) + 1;
+
             final List<EC2AbstractSlave> slaves = getNewOrExistingAvailableSlave(t, number, false);
 
             if (slaves == null || slaves.isEmpty()) {
