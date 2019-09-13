@@ -553,7 +553,7 @@ public abstract class EC2Cloud extends Cloud {
      * Obtains a slave whose AMI matches the AMI of the given template, and that also has requiredLabel (if requiredLabel is non-null)
      * forceCreateNew specifies that the creation of a new slave is required. Otherwise, an existing matching slave may be re-used
      */
-    private synchronized List<EC2AbstractSlave> getNewOrExistingAvailableSlave(SlaveTemplate t, int number, boolean forceCreateNew) {
+    private List<EC2AbstractSlave> getNewOrExistingAvailableSlave(SlaveTemplate t, int number, boolean forceCreateNew) {
         try {
 //            slaveCountingLock.lock();
             int possibleSlavesCount = getPossibleNewSlavesCount(t);
