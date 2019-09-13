@@ -23,11 +23,16 @@
  */
 package hudson.plugins.ec2;
 
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.model.StartInstancesRequest;
+import com.amazonaws.services.ec2.model.StartInstancesResult;
 import hudson.model.TaskListener;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.SlaveComputer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,11 +50,26 @@ public abstract class EC2ComputerLauncher extends ComputerLauncher {
     public void launch(SlaveComputer slaveComputer, TaskListener listener) {
         try {
             EC2Computer computer = (EC2Computer) slaveComputer;
+
+            // send start request if computer is stopped
+            if (computer.getState().equals(InstanceState.STOPPED)) {
+                String instanceId = computer.getInstanceId();
+                LOGGER.log(Level.INFO, "Sending start request for instance id `{0}` because it is currently stopped", new Object[]{instanceId});
+
+                AmazonEC2 ec2 = computer.getCloud().connect();
+                List<String> instances = new ArrayList<>();
+                instances.add(instanceId);
+
+                StartInstancesRequest siRequest = new StartInstancesRequest(instances);
+                StartInstancesResult siResult = ec2.startInstances(siRequest);
+                LOGGER.log(Level.INFO, "Sent start request for instance id `{0}`; result was {1}", new Object[]{instanceId, siResult});
+            }
+
             launchScript(computer, listener);
         } catch (AmazonClientException | IOException e) {
             e.printStackTrace(listener.error(e.getMessage()));
             if (slaveComputer.getNode() instanceof  EC2AbstractSlave) {
-                LOGGER.log(Level.FINE, String.format("Terminating the ec2 agent %s due a problem launching or connecting to it", slaveComputer.getName()), e);
+                LOGGER.log(Level.WARNING, String.format("Terminating the ec2 agent %s due a problem launching or connecting to it", slaveComputer.getName()), e);
                 EC2AbstractSlave ec2AbstractSlave = (EC2AbstractSlave) slaveComputer.getNode();
                 if (ec2AbstractSlave != null) {
                     ec2AbstractSlave.terminate();
@@ -59,7 +79,7 @@ public abstract class EC2ComputerLauncher extends ComputerLauncher {
             Thread.currentThread().interrupt();
             e.printStackTrace(listener.error(e.getMessage()));
             if (slaveComputer.getNode() instanceof  EC2AbstractSlave) {
-                LOGGER.log(Level.FINE, String.format("Terminating the ec2 agent %s due a problem launching or connecting to it", slaveComputer.getName()), e);
+                LOGGER.log(Level.WARNING, String.format("Terminating the ec2 agent %s due a problem launching or connecting to it", slaveComputer.getName()), e);
                 EC2AbstractSlave ec2AbstractSlave = (EC2AbstractSlave) slaveComputer.getNode();
                 if (ec2AbstractSlave != null) {
                     ec2AbstractSlave.terminate();
