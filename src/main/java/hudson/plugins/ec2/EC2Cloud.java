@@ -161,7 +161,7 @@ public abstract class EC2Cloud extends Cloud {
 
     private transient KeyPair usableKeyPair;
 
-    protected transient AmazonEC2 connection;
+    protected transient volatile AmazonEC2 connection;
 
     private static AWSCredentialsProvider awsCredentialsProvider;
 
@@ -751,8 +751,10 @@ public abstract class EC2Cloud extends Cloud {
      */
     public AmazonEC2 connect() throws AmazonClientException {
         try {
-            if (connection == null) {
-                connection = connect(createCredentialsProvider(), getEc2EndpointUrl());
+            synchronized (this) {
+                if (connection == null) {
+                    connection = connect(createCredentialsProvider(), getEc2EndpointUrl());
+                }
             }
             return connection;
         } catch (IOException e) {
@@ -765,7 +767,7 @@ public abstract class EC2Cloud extends Cloud {
      *
      * @return {@link AmazonEC2} client
      */
-    public synchronized static AmazonEC2 connect(AWSCredentialsProvider credentialsProvider, URL endpoint) {
+    public static AmazonEC2 connect(AWSCredentialsProvider credentialsProvider, URL endpoint) {
         awsCredentialsProvider = credentialsProvider;
         AmazonEC2 client = new AmazonEC2Client(credentialsProvider, createClientConfiguration(endpoint.getHost()));
         client.setEndpoint(endpoint.toString());
