@@ -39,6 +39,7 @@ final class CloudHelper {
 
     @CheckForNull
     static Instance getInstance(String instanceId, EC2Cloud cloud) throws AmazonClientException {
+        LOGGER.info("***Called getInstance for instance id: " + instanceId);
         if (StringUtils.isEmpty(instanceId) || cloud == null)
             return null;
 
@@ -65,6 +66,7 @@ final class CloudHelper {
           LOGGER.info(message);
           throw new AmazonClientException(message);
         }
+        LOGGER.info("***Returning from getInstance for instance id: " + instanceId);
         return instances.get(0);
     }
 }
