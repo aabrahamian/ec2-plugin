@@ -471,6 +471,7 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
      * Safely we can pickup only instance that is not known by Jenkins at all.
      */
     private boolean checkInstance(Instance instance) {
+        logInstanceCheck(instance, "  check instance against known jenkins instances");
         for (EC2AbstractSlave node : NodeIterator.nodes(EC2AbstractSlave.class)) {
             if ( (node.getInstanceId().equals(instance.getInstanceId())) &&
                     (! (instance.getState().getName().equalsIgnoreCase(InstanceStateName.Stopped.toString())
@@ -510,7 +511,7 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
     private List<EC2AbstractSlave> provisionOndemand(int number, EnumSet<ProvisionOptions> provisionOptions) throws AmazonClientException, IOException {
         AmazonEC2 ec2 = getParent().connect();
 
-        logProvisionInfo("Considering launching");
+        logProvisionInfo("Considering starting or creating (" + number + ") nodes");
 
         RunInstancesRequest riRequest = new RunInstancesRequest(ami, 1, number).withInstanceType(type);
         riRequest.setEbsOptimized(ebsOptimized);
@@ -615,10 +616,12 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
         wakeOrphansOrStoppedUp(ec2, orphansOrStopped);
 
         if (orphansOrStopped.size() == number) {
+            logProvisionInfo("All instances needed (" + orphansOrStopped.size() + ") were stopped! No new instances were created");
             return toSlaves(orphansOrStopped);
         }
 
         riRequest.setMaxCount(number - orphansOrStopped.size());
+        logProvisionInfo("Requesting (" + riRequest.getMaxCount() + ") new instances");
 
         if (StringUtils.isNotBlank(getIamInstanceProfile())) {
             riRequest.setIamInstanceProfile(new IamInstanceProfileSpecification().withArn(getIamInstanceProfile()));
@@ -666,6 +669,7 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
     private List<EC2AbstractSlave> toSlaves(List<Instance> newInstances) throws IOException {
         try {
             List<EC2AbstractSlave> slaves = new ArrayList<>(newInstances.size());
+            logProvisionInfo("toSlaves called, count: " + newInstances.size());
             for (Instance instance : newInstances) {
                 slaves.add(newOndemandSlave(instance));
                 logProvisionInfo("Return instance: " + instance);

@@ -555,6 +555,7 @@ public abstract class EC2Cloud extends Cloud {
      */
     private List<EC2AbstractSlave> getNewOrExistingAvailableSlave(SlaveTemplate t, int number, boolean forceCreateNew) {
         try {
+            LOGGER.log(Level.INFO,"getNewOrExistingAvailableSlave: BEFORE LOCK");
             slaveCountingLock.lock();
             int possibleSlavesCount = getPossibleNewSlavesCount(t);
             if (possibleSlavesCount <= 0) {
@@ -580,7 +581,10 @@ public abstract class EC2Cloud extends Cloud {
                 LOGGER.log(Level.WARNING, t + ". Exception during provisioning", e);
                 return null;
             }
-        } finally { slaveCountingLock.unlock(); }
+        } finally {
+            slaveCountingLock.unlock();
+            LOGGER.log(Level.INFO,"getNewOrExistingAvailableSlave: AFTER LOCK");
+        }
     }
 
     @Override
