@@ -28,6 +28,7 @@ import hudson.Util;
 import hudson.model.Node;
 import hudson.slaves.SlaveComputer;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 
 import org.kohsuke.stapler.HttpRedirect;
@@ -45,6 +46,8 @@ public class EC2Computer extends SlaveComputer {
      * Cached description of this EC2 instance. Lazily fetched.
      */
     private volatile Instance ec2InstanceDescription;
+
+    private static final Logger LOGGER = Logger.getLogger(EC2Computer.class.getName());
 
     public EC2Computer(EC2AbstractSlave slave) {
         super(slave);
@@ -106,6 +109,7 @@ public class EC2Computer extends SlaveComputer {
      */
     public Instance describeInstance() throws AmazonClientException, InterruptedException {
         if (ec2InstanceDescription == null)
+            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Computer.describeInstance()");
             ec2InstanceDescription = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
         return ec2InstanceDescription;
     }
@@ -114,6 +118,7 @@ public class EC2Computer extends SlaveComputer {
      * This will flush any cached description held by {@link #describeInstance()}.
      */
     public Instance updateInstanceDescription() throws AmazonClientException, InterruptedException {
+        LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Computer.updateInstanceDescription()");
         return ec2InstanceDescription = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
     }
 
@@ -124,6 +129,7 @@ public class EC2Computer extends SlaveComputer {
      * Unlike {@link #describeInstance()}, this method always return the current status by calling EC2.
      */
     public InstanceState getState() throws AmazonClientException, InterruptedException {
+        LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Computer.getState()");
         ec2InstanceDescription = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
         return InstanceState.find(ec2InstanceDescription.getState().getName());
     }

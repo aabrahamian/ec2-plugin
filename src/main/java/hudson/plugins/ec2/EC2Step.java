@@ -35,6 +35,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Returns the instance provisioned.
@@ -50,6 +51,8 @@ import java.util.*;
  * @author Alicia Doblas
  */
 public class EC2Step extends Step {
+
+    private static final Logger LOGGER = Logger.getLogger(EC2Computer.class.getName());
 
     private String cloud;
     private String template;
@@ -150,6 +153,7 @@ public class EC2Step extends Step {
                     }
 
                     EC2AbstractSlave slave = instances.get(0);
+                    LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Step.run()");
                     return CloudHelper.getInstanceWithRetry(slave.getInstanceId(), (AmazonEC2Cloud) cl);
                 } else {
                     throw new IllegalArgumentException("Error in AWS Cloud. Please review AWS template defined in Jenkins configuration.");

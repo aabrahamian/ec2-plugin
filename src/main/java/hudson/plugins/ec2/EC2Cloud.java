@@ -642,6 +642,7 @@ public abstract class EC2Cloud extends Cloud {
                                 }
                             }
 
+                            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside createPlannedNode/call()");
                             Instance instance = CloudHelper.getInstanceWithRetry(instanceId, slave.getCloud());
                             if (instance == null) {
                                 LOGGER.log(Level.WARNING, "{0} Can't find instance with instance id `{1}` in cloud {2}. Terminate provisioning ",
