@@ -99,27 +99,23 @@ public class EC2Computer extends SlaveComputer {
     }
 
     /**
-     * Obtains the instance state description in EC2.
-     *
-     * <p>
-     * This method returns a cached state, so it's not suitable to check {@link Instance#getState()} from the returned
-     * instance (but all the other fields are valid as it won't change.)
+     * Obtains the instance state description in EC2 based on the last fetch time in EC2AbstractSlave.
      *
      * The cache can be flushed using {@link #updateInstanceDescription()}
      */
     public Instance describeInstance() throws AmazonClientException, InterruptedException {
-        if (ec2InstanceDescription == null)
-            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Computer.describeInstance()");
-            ec2InstanceDescription = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
-        return ec2InstanceDescription;
+        EC2AbstractSlave workerNode = getNode();
+        return workerNode.lastFetchInstance;
     }
 
     /**
-     * This will flush any cached description held by {@link #describeInstance()}.
+     * This will flush any cached description held by {@link #describeInstance()} by using the mechanism that exists on
+     * the EC2AbstractSlave.
      */
     public Instance updateInstanceDescription() throws AmazonClientException, InterruptedException {
-        LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Computer.updateInstanceDescription()");
-        return ec2InstanceDescription = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
+        EC2AbstractSlave workerNode = getNode();
+        workerNode.isAlive(true);
+        return workerNode.lastFetchInstance;
     }
 
     /**
@@ -129,9 +125,7 @@ public class EC2Computer extends SlaveComputer {
      * Unlike {@link #describeInstance()}, this method always return the current status by calling EC2.
      */
     public InstanceState getState() throws AmazonClientException, InterruptedException {
-        LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside of EC2Computer.getState()");
-        ec2InstanceDescription = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
-        return InstanceState.find(ec2InstanceDescription.getState().getName());
+        return InstanceState.find(describeInstance().getState().getName());
     }
 
     /**

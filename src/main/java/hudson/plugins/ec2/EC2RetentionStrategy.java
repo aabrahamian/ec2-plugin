@@ -107,7 +107,9 @@ public class EC2RetentionStrategy extends RetentionStrategy<EC2Computer> {
             InstanceState state;
 
             try {
-                state = computer.getState(); //Get State before Uptime because getState will refresh the cached EC2 info
+                // Refresh the cached EC2 info
+                computer.updateInstanceDescription();
+                state = computer.getState();
                 uptime = computer.getUptime();
             } catch (AmazonClientException | InterruptedException e) {
                 // We'll just retry next time we test for idleness.

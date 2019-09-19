@@ -557,11 +557,13 @@ public abstract class EC2Cloud extends Cloud {
         try {
             LOGGER.log(Level.INFO,"getNewOrExistingAvailableSlave: BEFORE LOCK");
             slaveCountingLock.lock();
-            int possibleSlavesCount = getPossibleNewSlavesCount(t);
-            if (possibleSlavesCount <= 0) {
-                LOGGER.log(Level.INFO, "{0}. Cannot provision - no capacity for instances: " + possibleSlavesCount, t);
-                return null;
-            }
+            // This is a fucking expensive call just to get the total number of nodes that can be provisioned,
+            //  I'm commenting out this stuff since we don't even use the instance cap stuff
+//            int possibleSlavesCount = getPossibleNewSlavesCount(t);
+//            if (possibleSlavesCount <= 0) {
+//                LOGGER.log(Level.INFO, "{0}. Cannot provision - no capacity for instances: " + possibleSlavesCount, t);
+//                return null;
+//            }
 
             try {
                 EnumSet<SlaveTemplate.ProvisionOptions> provisionOptions;
@@ -570,11 +572,11 @@ public abstract class EC2Cloud extends Cloud {
                 else
                     provisionOptions = EnumSet.of(SlaveTemplate.ProvisionOptions.ALLOW_CREATE);
 
-                if (number > possibleSlavesCount) {
-                    LOGGER.log(Level.INFO, String.format("%d nodes were requested for the template %s, " +
-                            "but because of instance cap only %d can be provisioned", number, t, possibleSlavesCount));
-                    number = possibleSlavesCount;
-                }
+//                if (number > possibleSlavesCount) {
+//                    LOGGER.log(Level.INFO, String.format("%d nodes were requested for the template %s, " +
+//                            "but because of instance cap only %d can be provisioned", number, t, possibleSlavesCount));
+//                    number = possibleSlavesCount;
+//                }
 
                 return t.provision(number, provisionOptions);
             } catch (IOException e) {
