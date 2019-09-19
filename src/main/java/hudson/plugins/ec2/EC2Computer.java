@@ -45,22 +45,23 @@ public class EC2Computer extends SlaveComputer {
     /**
      * Cached description of this EC2 instance. Lazily fetched.
      */
-    private volatile Instance ec2InstanceDescription;
+    private volatile EC2AbstractSlave ec2InstanceDescription;
 
     private static final Logger LOGGER = Logger.getLogger(EC2Computer.class.getName());
 
     public EC2Computer(EC2AbstractSlave slave) {
         super(slave);
+        ec2InstanceDescription = slave;
     }
 
     @Override
     public EC2AbstractSlave getNode() {
-        return (EC2AbstractSlave) super.getNode();
+        return ec2InstanceDescription;
     }
 
     @CheckForNull
     public String getInstanceId() {
-        EC2AbstractSlave node = (EC2AbstractSlave) super.getNode();
+        EC2AbstractSlave node = ec2InstanceDescription;
         if (node == null) {
             return null;
         }
