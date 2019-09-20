@@ -106,6 +106,8 @@ public class EC2Computer extends SlaveComputer {
      */
     public Instance describeInstance() throws AmazonClientException, InterruptedException {
         EC2AbstractSlave workerNode = getNode();
+        // potentially update if we haven't checked in the appropriate amount of time
+        workerNode.isAlive(false);
         return workerNode.lastFetchInstance;
     }
 
