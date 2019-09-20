@@ -555,7 +555,6 @@ public abstract class EC2Cloud extends Cloud {
      */
     private List<EC2AbstractSlave> getNewOrExistingAvailableSlave(SlaveTemplate t, int number, boolean forceCreateNew) {
         try {
-            LOGGER.log(Level.INFO,"getNewOrExistingAvailableSlave: BEFORE LOCK");
             slaveCountingLock.lock();
             // This is a fucking expensive call just to get the total number of nodes that can be provisioned,
             //  I'm commenting out this stuff since we don't even use the instance cap stuff
@@ -585,7 +584,6 @@ public abstract class EC2Cloud extends Cloud {
             }
         } finally {
             slaveCountingLock.unlock();
-            LOGGER.log(Level.INFO,"getNewOrExistingAvailableSlave: AFTER LOCK");
         }
     }
 
@@ -644,7 +642,6 @@ public abstract class EC2Cloud extends Cloud {
                                 }
                             }
 
-                            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside createPlannedNode/call()");
                             Instance instance = CloudHelper.getInstanceWithRetry(instanceId, slave.getCloud());
                             if (instance == null) {
                                 LOGGER.log(Level.WARNING, "{0} Can't find instance with instance id `{1}` in cloud {2}. Terminate provisioning ",

@@ -471,7 +471,6 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
      * Safely we can pickup only instance that is not known by Jenkins at all.
      */
     private boolean checkInstance(Instance instance) {
-        logInstanceCheck(instance, "  check instance against known jenkins instances");
         for (EC2AbstractSlave node : NodeIterator.nodes(EC2AbstractSlave.class)) {
             if ( (node.getInstanceId().equals(instance.getInstanceId())) &&
                     (! (instance.getState().getName().equalsIgnoreCase(InstanceStateName.Stopped.toString())
@@ -669,7 +668,6 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
     private List<EC2AbstractSlave> toSlaves(List<Instance> newInstances) throws IOException {
         try {
             List<EC2AbstractSlave> slaves = new ArrayList<>(newInstances.size());
-            logProvisionInfo("toSlaves called, count: " + newInstances.size());
             for (Instance instance : newInstances) {
                 slaves.add(newOndemandSlave(instance));
                 logProvisionInfo("Return instance: " + instance);
@@ -1014,7 +1012,6 @@ public class SlaveTemplate implements Describable<SlaveTemplate> {
                 break;
             } catch (AmazonServiceException e) {
                 if (e.getErrorCode().equals(catchErrorCode)) {
-                    LOGGER.info("Sleeping for 5 seconds for params " + params + "in slavetemplate.java");
                     Thread.sleep(5000);
                     continue;
                 }

@@ -339,7 +339,6 @@ public abstract class EC2AbstractSlave extends Slave {
      * @return instance in EC2.
      */
     public static Instance getInstance(String instanceId, EC2Cloud cloud) {
-        LOGGER.info("!!!!Calling CloudHelper.getInstance inside of public EC2AbstractSlave.getInstance()");
         return CloudHelper.getInstance(instanceId, cloud);
     }
     /**
@@ -496,7 +495,6 @@ public abstract class EC2AbstractSlave extends Slave {
 
         Instance i = null;
         try {
-            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside private Ec2AbstractSlave.fetchLiveInstanceData()");
             i = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
         } catch (InterruptedException e) {
             // We'll just retry next time we test for idleness.
@@ -535,7 +533,6 @@ public abstract class EC2AbstractSlave extends Slave {
     protected void clearLiveInstancedata() throws AmazonClientException {
         Instance inst = null;
         try {
-            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside protected Ec2AbstractSlave.clearLiveInstancedata()");
             inst = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
         } catch (InterruptedException e) {
             // We'll just retry next time we test for idleness.
@@ -567,7 +564,6 @@ public abstract class EC2AbstractSlave extends Slave {
     protected void pushLiveInstancedata() throws AmazonClientException {
         Instance inst = null;
         try {
-            LOGGER.info("!!!!Calling CloudHelper.getInstanceWithRetry inside protected Ec2AbstractSlave.pushLiveInstancedata()");
             inst = CloudHelper.getInstanceWithRetry(getInstanceId(), getCloud());
         } catch (InterruptedException e) {
             // We'll just retry next time we test for idleness.
