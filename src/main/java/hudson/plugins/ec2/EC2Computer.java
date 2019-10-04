@@ -51,7 +51,7 @@ public class EC2Computer extends SlaveComputer {
 
     public EC2Computer(EC2AbstractSlave slave) {
         super(slave);
-        ec2InstanceDescription = slave;
+        ec2InstanceDescription = (EC2AbstractSlave) super.getNode();
     }
 
     @Override
